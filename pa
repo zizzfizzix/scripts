@@ -1,0 +1,39 @@
+#!/bin/bash
+# a hack-o-script to make my mic work with(out) broken PulseAudio >=1.0
+
+pkg=pulseaudio{,-alsa}
+
+case $1 in
+
+	r)
+	if [[ `pacman -Qq pulseaudio` == "pulseaudio" ]]; then
+		pulseaudio -k;
+		eval sudo pacman -Rdd --noconfirm $pkg >&-;
+		if [[ -n `pgrep -o pulseaudio` ]]; then
+			killall pulseaudio;
+		fi
+		sudo rc.d restart alsa 2>&-;
+	else
+		echo "PA ain't here";
+		exit 1;
+	fi
+	;;
+
+	i)
+	if [[ `pacman -Qq pulseaudio` != "pulseaudio" ]]; then
+		echo 'wait'
+		eval sudo pacman -S --asdeps --noconfirm $pkg >&-
+		pulseaudio -D
+		sudo rc.d restart alsa >&-
+		echo 'done'
+	else
+		echo "PA already here";
+		exit 1;
+	fi
+	;;
+
+	*)
+	echo 'FK U'
+	;;
+esac
+exit 0
