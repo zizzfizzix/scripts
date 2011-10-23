@@ -3,16 +3,26 @@
 
 pkg=pulseaudio{,-alsa}
 
+app_res() {
+[[ -n $1 ]] &&
+if [[ -n `pidof $1` ]]; then
+	killall -TERM $1 && $1 &
+else
+	$1 &
+fi
+}
+
 case $1 in
 
-	r)
+	r) # this here below (pacman) writes to stderr probably, let's get rid of this
 	if [[ `pacman -Qq pulseaudio` == "pulseaudio" ]]; then
 		pulseaudio -k;
 		eval sudo pacman -Rdd --noconfirm $pkg >&-;
-		if [[ -n `pgrep -o pulseaudio` ]]; then
+		if [[ -n `pidof pulseaudio` ]]; then
 			killall pulseaudio;
 		fi
-		sudo rc.d restart alsa 2>&-;
+		sudo rc.d restart alsa >&-;
+		app_res $2
 	else
 		echo "PA ain't here";
 		exit 1;
@@ -21,11 +31,10 @@ case $1 in
 
 	i)
 	if [[ `pacman -Qq pulseaudio` != "pulseaudio" ]]; then
-		echo 'wait'
 		eval sudo pacman -S --asdeps --noconfirm $pkg >&-
 		pulseaudio -D
 		sudo rc.d restart alsa >&-
-		echo 'done'
+		app_res $2
 	else
 		echo "PA already here";
 		exit 1;
