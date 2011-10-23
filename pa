@@ -1,7 +1,8 @@
 #!/bin/bash
 # a hack-o-script to make my mic work with(out) broken PulseAudio >=1.0
 
-pkg=pulseaudio{,-alsa}
+pa=pulseaudio
+pkg=$pa{,-alsa}
 
 app_res() {
 [[ -n $1 ]] &&
@@ -15,28 +16,28 @@ fi
 case $1 in
 
 	r) # this here below (pacman) writes to stderr probably, let's get rid of this
-	if [[ `pacman -Qq pulseaudio` == "pulseaudio" ]]; then
-		pulseaudio -k;
+	if [[ `pacman -Qq $pa` == "$pa" ]]; then
+		$pa -k;
 		eval sudo pacman -Rdd --noconfirm $pkg >&-;
-		if [[ -n `pidof pulseaudio` ]]; then
-			killall pulseaudio;
+		if [[ -n `pidof $pa` ]]; then
+			killall $pa;
 		fi
 		sudo rc.d restart alsa >&-;
 		app_res $2
 	else
-		echo "PA ain't here";
+		echo "$pa ain't here";
 		exit 1;
 	fi
 	;;
 
 	i)
-	if [[ `pacman -Qq pulseaudio` != "pulseaudio" ]]; then
+	if [[ `pacman -Qq $pa` != "$pa" ]]; then
 		eval sudo pacman -S --asdeps --noconfirm $pkg >&-
-		pulseaudio -D
+		$pa -D
 		sudo rc.d restart alsa >&-
 		app_res $2
 	else
-		echo "PA already here";
+		echo "$pa already here";
 		exit 1;
 	fi
 	;;
