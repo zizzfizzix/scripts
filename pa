@@ -5,9 +5,15 @@ pa=pulseaudio
 pkg=$pa{,-alsa}
 
 app_res() {
+do=TERM
 [[ -n $1 ]] &&
 if [[ -n `pidof $1` ]]; then
-	killall -TERM $1 && $1 &
+	killall -$do $1 
+	if [[ -n `pidof $1` ]]; then
+		do=KILL;
+		app_res;
+	fi
+	$1 &
 else
 	$1 &
 fi
@@ -15,15 +21,15 @@ fi
 
 case $1 in
 
-	r) # this here below (pacman) writes to stderr probably, let's get rid of this
-	if [[ `pacman -Qq $pa` == "$pa" ]]; then
+	r)
+	if [[ `pacman -Qq $pa 2> /dev/null` == "$pa" ]]; then
 		$pa -k;
 		eval sudo pacman -Rdd --noconfirm $pkg >&-;
 		if [[ -n `pidof $pa` ]]; then
 			killall $pa;
 		fi
-		sudo rc.d restart alsa >&-;
-		app_res $2
+		sudo rc.d restart alsa 2>&1 > /dev/null;
+		app_res $2;
 	else
 		echo "$pa ain't here";
 		exit 1;
@@ -31,11 +37,11 @@ case $1 in
 	;;
 
 	i)
-	if [[ `pacman -Qq $pa` != "$pa" ]]; then
-		eval sudo pacman -S --asdeps --noconfirm $pkg >&-
-		$pa -D
-		sudo rc.d restart alsa >&-
-		app_res $2
+	if [[ `pacman -Qq $pa 2> /dev/null` != "$pa" ]]; then
+		eval sudo pacman -S --asdeps --noconfirm $pkg >&-;
+		$pa -D;
+		sudo rc.d restart alsa 2>&1 > /dev/null;
+		app_res $2;
 	else
 		echo "$pa already here";
 		exit 1;
