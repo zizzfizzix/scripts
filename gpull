@@ -1,0 +1,10 @@
+#!/bin/bash
+# draft script to update all git repos within my home dir
+
+# FIXME: make it work; add depth cli switch (increment it and blabla)
+if [[ -d *]]; then
+for dir in $dirs do;
+[[ -d .git ]] && git pull
+done
+
+exit 0
