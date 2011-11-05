@@ -46,13 +46,20 @@ case $1 in
 		sudo rc.d restart alsa;
 		app_res $2;
 	else
-		echo "$pa already here" 1>`tty`;
+		echo "$pa is already there" 1>`tty`;
 		exit 1;
 	fi
 	;;
 
 	*)
-	echo 'FK U' 1>`tty`
+	echo "Usage:
+
+i - install $pa
+r - remove $pa
+
+You can also add a second arg with a program name so it gets restarted after r/i action.
+
+Example: pa r skype" 1>$(tty)
 	;;
 esac
 exit 0
