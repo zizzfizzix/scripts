@@ -10,9 +10,9 @@ pkg=$pa{,-alsa}
 app_res() {
 do=TERM
 [[ -n $1 ]] &&
-if [[ -n `pidof $1` ]]; then
+if [[ -n $(pidof $1) ]]; then
 	killall -$do $1 
-	if [[ -n `pidof $1` ]]; then
+	if [[ -n $(pidof $1) ]]; then
 		do=KILL;
 		app_res;
 	fi
@@ -25,28 +25,28 @@ fi
 case $1 in
 
 	r)
-	if [[ `pacman -Qq $pa` == "$pa" ]]; then
+	if [[ $(pacman -Qq $pa) == "$pa" ]]; then
 		$pa -k;
 		eval sudo pacman -Rdd --noconfirm $pkg;
-		if [[ -n `pidof $pa` ]]; then
+		if [[ -n $(pidof $pa) ]]; then
 			killall $pa;
 		fi
 		sudo rc.d restart alsa;
 		app_res $2;
 	else
-		echo "$pa ain't here" 1>`tty`;
+		echo "$pa ain't here" 1>$(tty);
 		exit 1;
 	fi
 	;;
 
 	i)
-	if [[ `pacman -Qq $pa` != "$pa" ]]; then
+	if [[ $(pacman -Qq $pa) != "$pa" ]]; then
 		eval sudo pacman -S --asdeps --noconfirm $pkg;
 		$pa -D;
 		sudo rc.d restart alsa;
 		app_res $2;
 	else
-		echo "$pa is already there" 1>`tty`;
+		echo "$pa is already there" 1>$(tty);
 		exit 1;
 	fi
 	;;
