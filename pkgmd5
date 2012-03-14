@@ -3,4 +3,4 @@
 
 exec 2>/dev/null
 
-sed -i s/$(cat PKGBUILD|grep md5sum)/$(makepkg -g|tail -n1)/ PKGBUILD
+sed -i s/^md5sums\?/$(makepkg -g)/ PKGBUILD
