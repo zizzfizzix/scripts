@@ -1,6 +1,15 @@
 #!/bin/sh
 # automatically replace old md5sum with new in PKGBUILDs
+# TODO: make md5sums configurable to sha256sums etc.
 
 exec 2>/dev/null
 
-sed -i s/^md5sums\?/$(makepkg -g)/ PKGBUILD
+file=PKGBUILD
+
+if [[ -w $1 ]]; then file=$1; fi
+
+if [[ ! $(grep ^md5sums $file) ]]; then
+	sed -i "s|^source.*|&\n$(makepkg -g -p $file)|" $file
+else
+	sed -i "s|^md5sums.*|$(makepkg -g -p $file)|" $file
+fi
