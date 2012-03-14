@@ -1,0 +1,6 @@
+#!/bin/sh
+# automatically replace old md5sum with new in PKGBUILDs
+
+exec 2>/dev/null
+
+sed -i s/$(cat PKGBUILD|grep md5sum)/$(makepkg -g|tail -n1)/ PKGBUILD
